@@ -1,7 +1,35 @@
 <html>
-    <title>Narrative Visulaization</title>
-    <head></head>
-    <body>
-        <h1>Narrative Visulaization</h1>
-    </body>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<style> rect {fill: lightblue; stroke: black; }</style>
+<body>
+<svg width=300 height=300>
+</svg>
+<script>
+var data = [4,8,15,16,23,42];
+
+var x = d3.scaleBand().domain([0,1,2,3,4,5]).range([0,250])
+var y = d3.scaleBand().domain([0,5,10,15,20,25,30,35,40,45]).range([250,0])
+
+d3.select("svg").append("g")
+ .attr("transform","translate(50,50)")
+ .call(d3.axisLeft(y))
+.append("g")
+ .attr("transform","translate(0,0)")
+ .call(d3.axisBottom(x))
+  .selectAll("rect")
+  .data(data)
+  .enter().append("rect")
+  .attr("width",100/3)
+  .attr("height",function(d){return 10*d;})
+  .attr("x",function(d,i) {return 20*i;})
+  .attr("y",function(d){return 250-10*d;})
+
+</script>
+</body>
 </html>
+
+
+
+
+
+
