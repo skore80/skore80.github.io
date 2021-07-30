@@ -14,12 +14,18 @@
 </style>
 <body onload='init("All")'>
         <h1>Vehicle Fuel Efficiency by Fuel Type</h1>
+        <p>
+            Various car manfactures make diffrent types of vehicles. Each make vary by fuel</br> 
+            type gasoline, Diesel and electircity. Vehicles diffent number of cylinders.</br>
+            Both fuel type and no of cylinders effects vehicle performance as well as the fuel efficiency.</br>
+            Click on below buttons to see All fuel type or individual fuel type. 
+        </p>
  <div>
         <button onclick="init('All')">MPG All Make</button> 
          <button onclick="init('Gasoline')">MPG Gasoline</button> 
         <button onclick="init('Diesel')">MPG Diesel</button> 
         <button onclick="init('Electricity')">MPG Electricity</button> 
-        <button onclick="init('Electricity')">Counts by Cylinder</button> 
+        
 </div>
  
         
@@ -109,6 +115,17 @@ d3.select("svg")
   .attr("cx",function(d,i) {return x(d.AverageCityMPG);})
   .attr("cy",function(d,i) {return y(d.AverageHighwayMPG);})
   .attr("r",function(d,i) {return parseInt(d.EngineCylinders)+20;})
+  .style("fill",function(d,i) { if(d.Fuel == 'Electricity')
+                                        {return "#90EE90" }
+                                        if(d.Fuel == 'Gasoline')
+                                        {
+                                                return "#FF6666"
+                                        }
+                                        if(d.Fuel == 'Diesel')
+                                        {
+                                                return "Orange"
+                                        }
+  })
   .on("mouseover",function(d,i){
           console.log("tooltip")
           tooltip.style("opacity",1)
