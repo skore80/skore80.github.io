@@ -1,0 +1,97 @@
+<html>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<!-- Load d3-annotation -->
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+<style> rect {fill: lightblue; stroke: black; }</style>
+<body onload='init()'>
+        <h1>Vehicle Make Cylinder and Fuel Efficiency</h1>
+<svg width=600 height=600>
+</svg>
+<div id="tooltip"></div>
+<script>
+async function init() {
+
+ 
+    
+
+    var data1 = [4,8,15,16,23,42,34,23];
+
+
+var tooltip=d3.select("#tooltip")
+data = await d3.csv("https://flunky.github.io/cars2017.csv");
+var makeAgg = d3.nest()
+  .key(function(d) { return parseInt(d.EngineCylinders); })
+  .rollup(function(v) { return {
+    count: v.length,
+    total: d3.sum(v, function(d) { return d.AverageCityMPG; }),
+    avg: d3.mean(v, function(d) { return d.AverageCityMPG; })
+  }; })
+  .sortKeys((a, b) => d3.ascending(+a, +b))
+  .entries(data)
+//   .sort(function(a){ return d3.ascending(parseInt(a.values)})
+;
+  console.log(JSON.stringify(makeAgg));
+console.log(makeAgg[1].value.avg);
+ console.log(data[0]);
+
+//  var x = d3.scaleBand().domain(Object.keys(makeAgg)).range([0,550])
+var x = d3.scaleBand().domain([0,2,3,4,6,8,10,12]).range([0,500])
+var y = d3.scaleLinear().domain([10,100]).range([500,0])
+// var x_axis = d3.axisBottom(x)
+//         .tickValues([10,20,50,100]).tickFormat(d3.format("~s"))
+// var y_axis = d3.axisLeft(y)
+//         .tickValues([10,20,50,100]).tickFormat(d3.format("~s"))
+
+ d3.select("svg")
+//   .attr("width",300)
+//   .attr("height",300)
+   .append("g")
+.attr("transform","translate(50,50)")
+  .selectAll("rect")
+  .data(makeAgg)
+  .enter().append("rect")
+   .attr("x",function(d,i) {return i*x.bandwidth();})
+  .attr("y",function(d,i){return 500-(parseInt(d.value.avg))})
+  .attr("width",50)
+  .attr("height",function(d,i){return ((parseInt(d.value.avg)))})  
+
+  d3.select("svg")  
+.append("g")
+ .attr("transform","translate(50,50)")
+ .call(d3.axisLeft(y))
+d3.select("svg")  
+.append("g")
+ .attr("transform","translate(50,550)")
+ .call(d3.axisBottom(x))
+
+// d3.select("svg")
+//    .append("g")
+// .attr("transform","translate(50,50)")
+// .attr("text","AverageHighwayMPG")
+//  .call(y_axis)
+// d3.select("svg")  
+// .append("g")
+//  .attr("transform","translate(50,550)")
+//  .call(x_axis)
+ d3.select("svg").append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", 400)
+    .attr("y", 590)
+    .attr("fill", "blue")
+    .text("No of Cylinders");
+    d3.select("svg").append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("x", -200)
+    .attr("y", 10)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .attr("fill", "blue")
+    .text("Average Highway MPG");
+
+
+}
+</script>
+</body>
+</html>

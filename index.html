@@ -1,37 +1,178 @@
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<style> circle {fill: lightblue; stroke: black;} </style>
-<body onload='init()'>
-<svg width=300 height=300>
+<!-- Load d3-annotation -->
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+<style> circle {fill: lightblue; stroke: black;} 
+        #tooltip{
+                opacity: 0;
+                position: absolute;
+                text-align: left;
+                width: 150px; height: 80px;
+                background: rgb(189, 192, 34);
+                border: 1px;
+        }
+</style>
+<body onload='init("All")'>
+        <h1>Vehicle Fuel Efficiency by Fuel Type</h1>
+ <div>
+        <button onclick="init('All')">MPG All Make</button> 
+         <button onclick="init('Gasoline')">MPG Gasoline</button> 
+        <button onclick="init('Diesel')">MPG Diesel</button> 
+        <button onclick="init('Electricity')">MPG Electricity</button> 
+        <button onclick="init('Electricity')">Counts by Cylinder</button> 
+</div>
+ 
+        
+<svg width=600 height=600>
 </svg>
+<div id="tooltip"></div>
 <script>
-async function init() {
-    var x = d3.scaleLog().domain([10,150]).range([0,200])
-var y = d3.scaleLog().domain([10,150]).range([200,0])
+async function init(Fuel) {
+        console.log(Fuel)
+        d3.select("svg").selectAll('*').remove();
+
+ // Features of the annotation
+ const annotations = [
+      {
+        note: {
+          label: "Higher the cylinders lower the MPG",
+          title: "Gasoline Vehicles",
+          align: "middle",  // try right or left
+          wrap: 200,  // try something smaller to see text split in several lines
+          padding: 10   // More = text lower
+        },
+        color: ["red"],
+        x: 150,
+        y: 400,
+        dy: 70,
+        dx: 100
+      }
+    ]
+    const annotations1 = [
+      {
+        note: {
+          label: "Higher the cylinders lower the MPG",
+          title: "Diesel Vehicles",
+          align: "middle",  // try right or left
+          wrap: 200,  // try something smaller to see text split in several lines
+          padding: 10   // More = text lower
+        },
+        color: ["Orange"],
+        x: 250,
+        y: 330,
+        dy: 70,
+        dx: 100
+      }
+    ] 
+    const annotations2 = [
+      {
+        note: {
+          label: "Significantly higher MPG",
+          title: "Electric Vehicles",
+          align: "middle",  // try right or left
+          wrap: 200,  // try something smaller to see text split in several lines
+          padding: 10   // More = text lower
+        },
+        color: ["green"],
+        x: 470,
+        y: 150,
+        dy: 70,
+        dx: 50
+      }
+    ]
+    
+   
+
+    var x = d3.scaleLog().domain([10,150]).range([0,500])
+var y = d3.scaleLog().domain([10,150]).range([500,0])
 var x_axis = d3.axisBottom(x)
         .tickValues([10,20,50,100]).tickFormat(d3.format("~s"))
 var y_axis = d3.axisLeft(y)
         .tickValues([10,20,50,100]).tickFormat(d3.format("~s"))
-
+var tooltip=d3.select("#tooltip")
 data = await d3.csv("https://flunky.github.io/cars2017.csv");
- console.log(data[0]);
+console.log (data);
+filtered = data.filter(function (a,i) { 
+                console.log(a.Fuel)
+                if(Fuel === 'All')
+                {
+                        return a;
+                }
+                if(a.Fuel === Fuel) {return a;} });
+ console.log(filtered);
 d3.select("svg")
    .append("g")
 .attr("transform","translate(50,50)")
 .selectAll("circle")
-  .data(data)
+  .data(filtered)
   .enter().append("circle")
-  .attr("cx",function(d,i) {return x(data[i].AverageCityMPG);})
-  .attr("cy",function(d,i) {return y(data[i].AverageHighwayMPG);})
-  .attr("r",function(d,i) {return parseInt(data[i].EngineCylinders)+2;})
+  .attr("cx",function(d,i) {return x(d.AverageCityMPG);})
+  .attr("cy",function(d,i) {return y(d.AverageHighwayMPG);})
+  .attr("r",function(d,i) {return parseInt(d.EngineCylinders)+20;})
+  .on("mouseover",function(d,i){
+          console.log("tooltip")
+          tooltip.style("opacity",1)
+          .style("left",(d3.event.pageX)+"px")
+          .style("top",(d3.event.pageY)+"px")
+          .style("cursor","pointer")
+          .html("<table><tr><td>Make : "+filtered[i].Make+"</td></tr><tr><td> Fuel : "+filtered[i].Fuel+"</td></tr><tr><td> EngineCylinders : "+filtered[i].EngineCylinders+"</td></tr></table>")
+          console.log("tooltip2222")
+  })
+  .on("mouseout",function(d,i){
+          tooltip.style("opacity",0)
+  })
 d3.select("svg")
    .append("g")
 .attr("transform","translate(50,50)")
+.attr("text","AverageHighwayMPG")
  .call(y_axis)
 d3.select("svg")  
 .append("g")
- .attr("transform","translate(50,250)")
+ .attr("transform","translate(50,550)")
  .call(x_axis)
+ d3.select("svg").append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", 400)
+    .attr("y", 590)
+    .attr("fill", "blue")
+    .text("Average City MPG");
+    d3.select("svg").append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("x", -200)
+    .attr("y", 10)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .attr("fill", "blue")
+    .text("Average Highway MPG");
+    if(Fuel == 'Gasoline' ||  Fuel == 'All')
+                {
+        // Add annotation to the chart
+        const makeAnnotations = d3.annotation()
+        .annotations(annotations)
+        d3.select("svg")
+        .append("g")
+        .call(makeAnnotations)
+                }
+        if(Fuel == 'Diesel' ||  Fuel == 'All')
+                {
+        // Add annotation to the chart
+        const makeAnnotations1 = d3.annotation()
+        .annotations(annotations1)
+        d3.select("svg")
+        .append("g")
+        .call(makeAnnotations1)
+                }            
+    if(Fuel == 'Electricity' || Fuel == 'All')   
+    {      
+        // Add annotation to the chart
+        const makeAnnotations2 = d3.annotation()
+        .annotations(annotations2)
+        d3.select("svg")
+        .append("g")
+        .call(makeAnnotations2)
+                }
 }
 </script>
 </body>

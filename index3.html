@@ -1,0 +1,37 @@
+<html>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<style> path {stroke: black;}</style>
+<body>
+<svg width=600 height=600>
+</svg>
+<script>
+
+
+var data = [4,8,15,16,23,42];
+var color = ['pink','lightyellow','lightgreen','lightcyan','lightblue','violet'];
+var pie = d3.pie();
+var arc = d3.arc().innerRadius(0).outerRadius(200);
+
+
+d3.select("svg")
+   .append("g")
+.attr("transform","translate(300,300)")
+  .selectAll("path")
+  .data(pie(data))
+  .enter().append("path")
+ .attr("d",arc)
+.attr("fill",function(d,i){return color[i];})
+
+var labels = d3.select("svg").selectAll('path').insert("text").data(pie(data))
+       .text( function (d) { return d.value; })
+       .attr("font-family", "sans-serif")
+       .attr('x', 300)           
+       .attr('y', 300)
+       .attr("font-size", "12px")
+       .attr("fill", "red");
+</script>
+</body>
+</html>
+
+
+
